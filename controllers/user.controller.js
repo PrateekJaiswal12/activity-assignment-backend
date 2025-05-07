@@ -9,20 +9,24 @@ configDotenv();
 export const login = async (req, res) => {
     const { email, password } = req.body;
     
-    if(!email) {
-        throw new Error(400, 'email is required');
-    }
+    // if(!email) {
+    //     return res.status(400).json(400, 'email is required');
+    // }
 
     const user = await User.findOne({email});
     
     if(!user) {
-        throw new Error(404, 'User does not exist');
+        return res.status(404).json({
+            message: 'User does not exist'
+        });
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
 
     if(!validPassword) {
-        throw new Error(401, 'Incorrect Password');
+        return res.status(401).json({
+            message: 'Incorrect Password'
+        });
     }
     const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET_KEY, {expiresIn: '2h'});
 
@@ -41,16 +45,18 @@ export const login = async (req, res) => {
 export const register = async(req, res) => {
     const { email, name, phone_number, password } = req.body;
 
-    if (
-        [name, email, phone_number, password].some((field) => field?.trim() === "")
-    ) {
-        return res.status(400).json(400, "All fields are required")
+    if ( [name, email, phone_number, password].some((field) => field?.trim() === "")) {
+        return res.status(400).json({
+            message: "All fields are required"
+        })
     }
 
-try {
+    try {
         const existedUser = await User.findOne({email});
         if(existedUser) {
-            return res.status(409).json(409, "User with email or username already exists");
+            return res.status(409).json({
+                message: "User with email or username already exists"
+            });
         }
     
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -65,14 +71,19 @@ try {
         const createdUser = await User.findById(user._id);
     
         if(!createdUser) {
-            return res.status(400).json(500, "Something went wrong while registering the user")
+            return res.status(400).json({
+                message: "Something went wrong while registering the user"
+            })
         }
     
         return res
         .status(201)
-        .json({createdUser,message: "User registered Successfully"})
+        .json({
+            createdUser,
+            message: "User registered Successfully"
+        })
     
-} catch (error) {
-    throw new Error(500, 'Something wrong while registering user');
-}
+    } catch (error) {
+        throw new Error(500, 'Something wrong while registering user');
+    }
 }

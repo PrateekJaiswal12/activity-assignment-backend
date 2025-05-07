@@ -6,7 +6,9 @@ export const allActivities = async(_req, res) => {
     try {
         const activities = await Activity.find({});
         if(!activities) {
-            return res.status(404).json({message: "No activities found"});
+            return res.status(404).json({
+                message: "No activities found"
+            });
         }
     
         res.status(200).json(activities);
@@ -14,6 +16,8 @@ export const allActivities = async(_req, res) => {
         throw new Error(500, 'Error Fetching Activities', error);
     }
 }
+
+
 
 export const bookActivity = async (req, res) => {
     try {
@@ -40,7 +44,9 @@ export const bookActivity = async (req, res) => {
 
         const activity = await Activity.findById(activityId);
         if (!activity) {
-            return res.status(404).json({ message: 'Activity not found' });
+            return res.status(404).json({
+                message: 'Activity not found' 
+            });
         }
 
         await activity.save();
